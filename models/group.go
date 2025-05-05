@@ -7,6 +7,7 @@ type Group struct {
 	Name        string     `firestore:"name" json:"name"`
 	Description string     `firestore:"description" json:"description"`
 	Members     []User     `firestore:"members" json:"members"`
+	MembersID   []string   `firestore:"membersID" json:"members_id"`
 	Tasks       []Tasks    `firestore:"tasks" json:"tasks,omitempty"`
 	Comments    []Comments `firestore:"comments" json:"comments,omitempty"`
 	CreatedAt   time.Time  `firestore:"createdAt" json:"created_at"`

@@ -35,9 +35,21 @@ func TaskFactory(ctx context.Context, fs *firestore.Client, createdBy models.Use
 		return fmt.Errorf("failed to get group: %w", err)
 	}
 
+	membersData := groupDoc.Data()["members"].([]interface{})
 	var members []models.User
-	if err := groupDoc.DataTo(&members); err != nil {
-		return fmt.Errorf("failed to unmarshal members: %w", err)
+	for _, m := range membersData {
+		memberMap, ok := m.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid member structure")
+		}
+
+		id, _ := memberMap["id"].(string)
+		name, _ := memberMap["name"].(string)
+
+		members = append(members, models.User{
+			ID:   id,
+			Name: name,
+		})
 	}
 
 	var tasks []models.Tasks

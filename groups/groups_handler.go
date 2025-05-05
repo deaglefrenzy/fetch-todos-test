@@ -29,6 +29,7 @@ func GroupFactory(ctx context.Context, fs *firestore.Client, count int, member m
 		g := SeedGroup()
 		groupColl := fs.Collection("groups").NewDoc()
 		g.ID = groupColl.ID
+		g.MembersID = append(g.MembersID, member.ID)
 		g.Members = append(g.Members, member)
 		_, err := groupColl.Set(ctx, g)
 		if err != nil {
