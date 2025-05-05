@@ -1,4 +1,4 @@
-package main
+package learn
 
 import (
 	"context"
@@ -20,7 +20,7 @@ type User struct {
 	DeletedAt    *time.Time `firestore:"deletedAt" json:"deleted_at,omitempty"`
 }
 
-func main() {
+func learn() {
 	ctx := context.Background() // digunakan untuk action yg memerlukan time
 
 	opt := option.WithCredentialsFile("service.json")

@@ -1,66 +1,38 @@
 package main
 
 import (
-	"context"
-	"fmt"
-
-	"cloud.google.com/go/firestore"
-	firebase "firebase.google.com/go"
-
-	"google.golang.org/api/option"
+	"learnfirestore/database"
+	"learnfirestore/groups"
+	"learnfirestore/models"
+	"learnfirestore/users"
 )
 
 func main() {
-	ctx := context.Background() // digunakan untuk action yg memerlukan time
 
-	opt := option.WithCredentialsFile("service.json")
-
-	app, err := firebase.NewApp(ctx, nil, opt)
+	ctx, fs, err := database.ConnectToFirestore()
 	if err != nil {
 		panic(err)
 	}
 
-	fs, err := app.Firestore(ctx) // requires connection to firestore database/server
+	newUser, err := users.UserFactory(ctx, fs, 1)
 	if err != nil {
 		panic(err)
 	}
 
-	coll := fs.Collection("groups")
+	member := models.User{ID: newUser[0].ID, Name: newUser[0].Name}
 
-	snap := coll.Snapshots(ctx)
+	newGroup, err := groups.GroupFactory(ctx, fs, 1, member)
+	if err != nil {
+		panic(err)
+	}
 
-	dataChan := make(chan string, 5)
+	err = groups.CommentsFactory(ctx, fs, member, newGroup[0], 1)
+	if err != nil {
+		panic(err)
+	}
 
-	go func() {
-		for {
-			fmt.Println("CHECKING CHANGES")
-			qs, err := snap.Next()
-			if err != nil {
-				panic(err)
-			}
-
-			for _, v := range qs.Changes {
-				fmt.Printf("Document change: %v\n", v.Kind)
-
-				if v.Kind == firestore.DocumentAdded {
-					dataChan <- fmt.Sprintf("added:%s", v.Doc.Ref.ID)
-				} else if v.Kind == firestore.DocumentModified {
-					dataChan <- fmt.Sprintf("modified:%s", v.Doc.Ref.ID)
-				} else if v.Kind == firestore.DocumentRemoved {
-					dataChan <- fmt.Sprintf("removed:%s", v.Doc.Ref.ID)
-				}
-			}
-		}
-	}()
-
-	go func() {
-		for {
-			fmt.Println("WRITING CHANGES")
-			data := <-dataChan
-			fmt.Println(data)
-		}
-	}()
-
-	for {
+	err = groups.TaskFactory(ctx, fs, member, newGroup[0], 1)
+	if err != nil {
+		panic(err)
 	}
 }

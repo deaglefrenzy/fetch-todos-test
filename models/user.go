@@ -11,6 +11,6 @@ type UserCollection struct {
 }
 
 type User struct {
-	ID   string `firestore:"-" json:"id"`
+	ID   string `firestore:"id" json:"id"`
 	Name string `firestore:"name" json:"name"`
 }
